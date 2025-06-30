@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Filter, Download, Mail, Upload } from 'lucide-react';
 import { CandidateCard } from './CandidateCard';
@@ -55,7 +54,7 @@ const mockCandidates = [
 export const CandidateManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [scoreRange, setScoreRange] = useState([0, 100]);
+  const [scoreRange, setScoreRange] = useState<[number, number]>([0, 100]);
   const [showBulkActions, setShowBulkActions] = useState(false);
 
   const filteredCandidates = mockCandidates.filter(candidate => {
