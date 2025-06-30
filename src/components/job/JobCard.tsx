@@ -1,6 +1,9 @@
 
-import React from 'react';
-import { MapPin, Calendar, Users, CheckCircle, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Users, Calendar, MoreHorizontal, Eye, Edit, Settings } from 'lucide-react';
+import { ViewResumesModal } from './ViewResumesModal';
+import { EditJobModal } from './EditJobModal';
+import { JobSettingsModal } from './JobSettingsModal';
 
 interface Job {
   id: number;
@@ -24,6 +27,11 @@ interface JobCardProps {
 }
 
 export const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const [showViewResumes, setShowViewResumes] = useState(false);
+  const [showEditJob, setShowEditJob] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -31,7 +39,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       case 'paused':
         return 'bg-yellow-100 text-yellow-800';
       case 'closed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -51,84 +59,152 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">{job.title}</h3>
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <span>{job.department}</span>
-            <div className="flex items-center space-x-1">
-              <MapPin className="w-3 h-3" />
-              <span>{job.location}</span>
+    <>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{job.title}</h3>
+            <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <span>{job.department}</span>
+              <span className="flex items-center space-x-1">
+                <MapPin className="w-3 h-3" />
+                <span>{job.location}</span>
+              </span>
             </div>
-            <div className="flex items-center space-x-1">
-              <Calendar className="w-3 h-3" />
-              <span>{job.createdAt}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(job.status)}`}>
+              {getStatusText(job.status)}
+            </span>
+            <div className="relative">
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="p-1 text-gray-400 hover:text-gray-600 rounded"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+              {showDropdown && (
+                <div className="absolute right-0 top-8 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                  <button
+                    onClick={() => {
+                      setShowViewResumes(true);
+                      setShowDropdown(false);
+                    }}
+                    className="w-full flex items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>查看简历</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowEditJob(true);
+                      setShowDropdown(false);
+                    }}
+                    className="w-full flex items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>编辑职位</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSettings(true);
+                      setShowDropdown(false);
+                    }}
+                    className="w-full flex items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>设置</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(job.status)}`}>
-            {getStatusText(job.status)}
-          </span>
-          <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100">
-            <Settings className="w-4 h-4" />
+
+        {/* Salary */}
+        <div className="mb-4">
+          <span className="text-xl font-bold text-blue-600">{job.salary}</span>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center space-x-6 mb-4">
+          <div className="flex items-center space-x-2">
+            <Users className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">
+              {job.applicants} 份申请
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">
+              {job.qualified} 份合格
+            </span>
+          </div>
+        </div>
+
+        {/* Requirements */}
+        <div className="mb-4">
+          <div className="text-sm text-gray-600 space-y-1">
+            <div>学历：{job.requirements.education}</div>
+            <div>经验：{job.requirements.experience}</div>
+          </div>
+        </div>
+
+        {/* Skills */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-1">
+            {job.requirements.skills.slice(0, 3).map((skill) => (
+              <span
+                key={skill}
+                className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded"
+              >
+                {skill}
+              </span>
+            ))}
+            {job.requirements.skills.length > 3 && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                +{job.requirements.skills.length - 3}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center space-x-2 text-xs text-gray-500">
+            <Calendar className="w-3 h-3" />
+            <span>发布于 {job.createdAt}</span>
+          </div>
+          <button
+            onClick={() => setShowViewResumes(true)}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            查看申请 →
           </button>
         </div>
       </div>
 
-      {/* Salary */}
-      <div className="mb-4">
-        <span className="text-lg font-semibold text-blue-600">{job.salary}</span>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center space-x-2">
-            <Users className="w-4 h-4 text-gray-600" />
-            <span className="text-sm text-gray-600">申请人数</span>
-          </div>
-          <div className="text-xl font-bold text-gray-900 mt-1">{job.applicants}</div>
-        </div>
-        <div className="bg-green-50 rounded-lg p-3">
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <span className="text-sm text-green-600">合格候选人</span>
-          </div>
-          <div className="text-xl font-bold text-green-700 mt-1">{job.qualified}</div>
-        </div>
-      </div>
-
-      {/* Requirements */}
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-gray-900 mb-2">职位要求</h4>
-        <div className="space-y-1 text-sm text-gray-600">
-          <div>学历: {job.requirements.education}</div>
-          <div>经验: {job.requirements.experience}</div>
-        </div>
-        <div className="flex flex-wrap gap-1 mt-2">
-          {job.requirements.skills.map((skill) => (
-            <span
-              key={skill}
-              className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex space-x-2 pt-4 border-t border-gray-100">
-        <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-          查看简历
-        </button>
-        <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm">
-          编辑职位
-        </button>
-      </div>
-    </div>
+      {/* Modals */}
+      {showViewResumes && (
+        <ViewResumesModal 
+          job={job}
+          onClose={() => setShowViewResumes(false)} 
+        />
+      )}
+      
+      {showEditJob && (
+        <EditJobModal 
+          job={job}
+          onClose={() => setShowEditJob(false)} 
+        />
+      )}
+      
+      {showSettings && (
+        <JobSettingsModal 
+          job={job}
+          onClose={() => setShowSettings(false)} 
+        />
+      )}
+    </>
   );
 };
