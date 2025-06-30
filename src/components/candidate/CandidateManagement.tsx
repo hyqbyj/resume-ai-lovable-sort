@@ -1,7 +1,11 @@
+
 import React, { useState } from 'react';
 import { Search, Filter, Download, Mail, Upload } from 'lucide-react';
 import { CandidateCard } from './CandidateCard';
 import { ScoreFilter } from './ScoreFilter';
+import { CandidateDetailModal } from './CandidateDetailModal';
+import { BulkUploadModal } from './BulkUploadModal';
+import { ExportModal } from './ExportModal';
 
 const mockCandidates = [
   {
@@ -48,6 +52,81 @@ const mockCandidates = [
     resumeUrl: '/resumes/wangwu.pdf',
     appliedAt: '2024-01-13',
     highlights: ['基础扎实', '但经验不足']
+  },
+  {
+    id: 4,
+    name: '赵六',
+    position: '后端开发工程师',
+    score: 92,
+    education: '上海交通大学 • 计算机科学',
+    experience: '5年',
+    skills: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Kafka'],
+    status: 'qualified',
+    phone: '135****3456',
+    email: 'zhaoliu***@email.com',
+    resumeUrl: '/resumes/zhaoliu.pdf',
+    appliedAt: '2024-01-16',
+    highlights: ['架构经验丰富', '大厂背景', '技术深度优秀']
+  },
+  {
+    id: 5,
+    name: '孙七',
+    position: '产品经理',
+    score: 78,
+    education: '复旦大学 • 工商管理',
+    experience: '4年',
+    skills: ['产品设计', '用户研究', 'SQL', 'Python', 'Axure'],
+    status: 'interviewed',
+    phone: '136****7890',
+    email: 'sunqi***@email.com',
+    resumeUrl: '/resumes/sunqi.pdf',
+    appliedAt: '2024-01-17',
+    highlights: ['B端产品经验', '数据分析能力强', '沟通能力优秀']
+  },
+  {
+    id: 6,
+    name: '周八',
+    position: 'UI设计师',
+    score: 65,
+    education: '中央美术学院 • 视觉传达',
+    experience: '2年',
+    skills: ['Figma', 'Sketch', 'Adobe Creative Suite', 'Principle'],
+    status: 'pending',
+    phone: '138****2468',
+    email: 'zhouba***@email.com',
+    resumeUrl: '/resumes/zhouba.pdf',
+    appliedAt: '2024-01-18',
+    highlights: ['设计功底扎实', '作品集丰富', '创意思维活跃']
+  },
+  {
+    id: 7,
+    name: '吴九',
+    position: '数据分析师',
+    score: 85,
+    education: '北京理工大学 • 统计学',
+    experience: '3年',
+    skills: ['Python', 'R', 'SQL', 'Tableau', 'Power BI'],
+    status: 'qualified',
+    phone: '139****1357',
+    email: 'wujiu***@email.com',
+    resumeUrl: '/resumes/wujiu.pdf',
+    appliedAt: '2024-01-19',
+    highlights: ['数据建模能力强', '业务理解深入', '可视化技能优秀']
+  },
+  {
+    id: 8,
+    name: '郑十',
+    position: '测试工程师',
+    score: 58,
+    education: '华南理工大学 • 软件工程',
+    experience: '2年',
+    skills: ['Selenium', 'JMeter', 'Postman', 'MySQL'],
+    status: 'pending',
+    phone: '137****9876',
+    email: 'zhengshi***@email.com',
+    resumeUrl: '/resumes/zhengshi.pdf',
+    appliedAt: '2024-01-20',
+    highlights: ['自动化测试经验', '细致认真', '学习意愿强']
   }
 ];
 
@@ -56,6 +135,10 @@ export const CandidateManagement = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [scoreRange, setScoreRange] = useState<[number, number]>([0, 100]);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [showBulkEmail, setShowBulkEmail] = useState(false);
 
   const filteredCandidates = mockCandidates.filter(candidate => {
     const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -75,15 +158,24 @@ export const CandidateManagement = () => {
           <p className="text-gray-600 mt-1">智能筛选候选人，高效管理简历流程</p>
         </div>
         <div className="flex space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => setShowExport(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
             <Download className="w-4 h-4" />
             <span>导出简历</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => setShowBulkEmail(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
             <Mail className="w-4 h-4" />
             <span>批量发送</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={() => setShowBulkUpload(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
             <Upload className="w-4 h-4" />
             <span>批量上传</span>
           </button>
@@ -93,7 +185,6 @@ export const CandidateManagement = () => {
       {/* Filters */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <div className="space-y-4">
-          {/* Search and Status */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -122,7 +213,6 @@ export const CandidateManagement = () => {
             </div>
           </div>
 
-          {/* Score Filter */}
           <ScoreFilter 
             range={scoreRange}
             onChange={setScoreRange}
@@ -145,10 +235,13 @@ export const CandidateManagement = () => {
         </div>
       </div>
 
-      {/* Candidate List */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {filteredCandidates.map((candidate) => (
-          <CandidateCard key={candidate.id} candidate={candidate} />
+          <CandidateCard 
+            key={candidate.id} 
+            candidate={candidate} 
+            onViewDetail={() => setSelectedCandidate(candidate)}
+          />
         ))}
       </div>
 
@@ -157,6 +250,22 @@ export const CandidateManagement = () => {
           <div className="text-gray-400 text-lg mb-2">未找到匹配的候选人</div>
           <div className="text-gray-500 text-sm">尝试调整筛选条件或搜索关键词</div>
         </div>
+      )}
+
+      {/* Modals */}
+      {selectedCandidate && (
+        <CandidateDetailModal 
+          candidate={selectedCandidate}
+          onClose={() => setSelectedCandidate(null)}
+        />
+      )}
+      
+      {showBulkUpload && (
+        <BulkUploadModal onClose={() => setShowBulkUpload(false)} />
+      )}
+      
+      {showExport && (
+        <ExportModal onClose={() => setShowExport(false)} />
       )}
     </div>
   );

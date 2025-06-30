@@ -1,0 +1,233 @@
+
+import React, { useState } from 'react';
+import { X, Upload, FileText, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+
+interface BulkUploadModalProps {
+  onClose: () => void;
+}
+
+export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ onClose }) => {
+  const [uploadStep, setUploadStep] = useState(1);
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [processingResults, setProcessingResults] = useState([
+    { name: 'zhangsan.pdf', status: 'success', score: 87, message: '解析成功，评分87分' },
+    { name: 'lisi.docx', status: 'success', score: 72, message: '解析成功，评分72分' },
+    { name: 'wangwu.pdf', status: 'warning', score: 45, message: '解析成功，但分数较低' },
+    { name: 'malformed.pdf', status: 'error', score: 0, message: '文件损坏，解析失败' }
+  ]);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    setFiles(selectedFiles);
+  };
+
+  const handleUpload = () => {
+    setUploadStep(2);
+    // 模拟上传进度
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setUploadProgress(progress);
+      if (progress >= 100) {
+        clearInterval(interval);
+        setTimeout(() => setUploadStep(3), 500);
+      }
+    }, 200);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">批量上传简历</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            <div className={`flex items-center space-x-2 ${uploadStep >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                uploadStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'
+              }`}>1</div>
+              <span className="font-medium">选择文件</span>
+            </div>
+            <div className="w-8 h-px bg-gray-300"></div>
+            <div className={`flex items-center space-x-2 ${uploadStep >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                uploadStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'
+              }`}>2</div>
+              <span className="font-medium">上传处理</span>
+            </div>
+            <div className="w-8 h-px bg-gray-300"></div>
+            <div className={`flex items-center space-x-2 ${uploadStep >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                uploadStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'
+              }`}>3</div>
+              <span className="font-medium">处理结果</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {uploadStep === 1 && (
+            <div className="space-y-6">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">选择简历文件</h3>
+                <p className="text-gray-600 mb-4">
+                  支持 PDF、Word、图片格式，单个文件最大 10MB
+                </p>
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
+                >
+                  选择文件
+                </label>
+              </div>
+
+              {files.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-900">已选择文件 ({files.length})</h4>
+                  <div className="max-h-40 overflow-y-auto space-y-2">
+                    {files.map((file, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                        <FileText className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-700 flex-1">{file.name}</span>
+                        <span className="text-xs text-gray-500">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-2">处理说明</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• 系统将自动解析简历内容，提取关键信息</li>
+                  <li>• 根据当前职位要求进行智能评分</li>
+                  <li>• 评分达到阈值的简历将自动进入合格候选人池</li>
+                  <li>• 处理完成后可查看详细的解析结果和评分依据</li>
+                </ul>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={onClose}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleUpload}
+                  disabled={files.length === 0}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  开始处理 ({files.length} 个文件)
+                </button>
+              </div>
+            </div>
+          )}
+
+          {uploadStep === 2 && (
+            <div className="space-y-6 text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                <Clock className="w-8 h-8 text-blue-600 animate-spin" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">正在处理简历...</h3>
+                <p className="text-gray-600">AI正在解析简历内容并进行智能评分</p>
+              </div>
+              
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-500">{uploadProgress}% 完成</p>
+            </div>
+          )}
+
+          {uploadStep === 3 && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">处理完成</h3>
+                <p className="text-gray-600">共处理 {processingResults.length} 份简历</p>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900">处理结果</h4>
+                {processingResults.map((result, index) => (
+                  <div key={index} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                    <div className="flex-shrink-0">
+                      {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      {result.status === 'warning' && <AlertCircle className="w-5 h-5 text-yellow-600" />}
+                      {result.status === 'error' && <AlertCircle className="w-5 h-5 text-red-600" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-gray-900">{result.name}</span>
+                        {result.score > 0 && (
+                          <span className={`text-sm font-medium px-2 py-1 rounded ${
+                            result.score >= 80 ? 'bg-green-100 text-green-800' :
+                            result.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {result.score}分
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600">{result.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="text-lg font-bold text-green-600">2</div>
+                  <div className="text-sm text-green-800">成功解析</div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-3">
+                  <div className="text-lg font-bold text-yellow-600">1</div>
+                  <div className="text-sm text-yellow-800">需要关注</div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-3">
+                  <div className="text-lg font-bold text-red-600">1</div>
+                  <div className="text-sm text-red-800">解析失败</div>
+                </div>
+              </div>
+
+              <button
+                onClick={onClose}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                完成
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

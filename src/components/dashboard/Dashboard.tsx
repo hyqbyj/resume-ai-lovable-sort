@@ -1,11 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { StatsCards } from './StatsCards';
 import { ScoreDistribution } from './ScoreDistribution';
 import { RecentActivity } from './RecentActivity';
 import { QuickActions } from './QuickActions';
+import { ExportReportModal } from './ExportReportModal';
+import { BulkUploadModal } from '../candidate/BulkUploadModal';
 
 export const Dashboard = () => {
+  const [showExportReport, setShowExportReport] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -15,10 +20,16 @@ export const Dashboard = () => {
           <p className="text-gray-600 mt-1">高效处理，精准匹配，智能决策</p>
         </div>
         <div className="flex space-x-3">
-          <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => setShowExportReport(true)}
+            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
             导出报告
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button 
+            onClick={() => setShowBulkUpload(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
             批量上传简历
           </button>
         </div>
@@ -36,12 +47,24 @@ export const Dashboard = () => {
         
         {/* Quick Actions */}
         <div>
-          <QuickActions />
+          <QuickActions 
+            onBulkUpload={() => setShowBulkUpload(true)}
+            onExportReport={() => setShowExportReport(true)}
+          />
         </div>
       </div>
 
       {/* Recent Activity */}
       <RecentActivity />
+
+      {/* Modals */}
+      {showExportReport && (
+        <ExportReportModal onClose={() => setShowExportReport(false)} />
+      )}
+      
+      {showBulkUpload && (
+        <BulkUploadModal onClose={() => setShowBulkUpload(false)} />
+      )}
     </div>
   );
 };
