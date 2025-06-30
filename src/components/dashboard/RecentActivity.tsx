@@ -1,6 +1,6 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { ActivityDetailModal } from './ActivityDetailModal';
 
 const activities = [
   {
@@ -53,40 +53,51 @@ const getStatusStyle = (type: string) => {
 };
 
 export const RecentActivity = () => {
+  const [showAllActivities, setShowAllActivities] = useState(false);
+
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">最近活动</h3>
-        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-          查看全部
-        </button>
-      </div>
-      
-      <div className="space-y-4">
-        {activities.map((activity) => {
-          const Icon = activity.icon;
-          const styles = getStatusStyle(activity.type);
-          
-          return (
-            <div
-              key={activity.id}
-              className={`flex items-start space-x-4 p-4 rounded-lg border ${styles.border} ${styles.bg} transition-all hover:shadow-sm`}
-            >
-              <div className={`p-2 rounded-full ${styles.bg}`}>
-                <Icon className={`w-4 h-4 ${styles.text}`} />
+    <>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">最近活动</h3>
+          <button 
+            onClick={() => setShowAllActivities(true)}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            查看全部
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          {activities.map((activity) => {
+            const Icon = activity.icon;
+            const styles = getStatusStyle(activity.type);
+            
+            return (
+              <div
+                key={activity.id}
+                className={`flex items-start space-x-4 p-4 rounded-lg border ${styles.border} ${styles.bg} transition-all hover:shadow-sm`}
+              >
+                <div className={`p-2 rounded-full ${styles.bg}`}>
+                  <Icon className={`w-4 h-4 ${styles.text}`} />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-900">{activity.title}</h4>
+                  <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                  <span className="text-xs text-gray-500 mt-2 inline-block">
+                    {activity.timestamp}
+                  </span>
+                </div>
               </div>
-              
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-gray-900">{activity.title}</h4>
-                <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
-                <span className="text-xs text-gray-500 mt-2 inline-block">
-                  {activity.timestamp}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {showAllActivities && (
+        <ActivityDetailModal onClose={() => setShowAllActivities(false)} />
+      )}
+    </>
   );
 };

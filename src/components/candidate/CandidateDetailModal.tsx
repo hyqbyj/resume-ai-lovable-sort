@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CandidateHeader } from './CandidateHeader';
 import { CandidateActionButtons } from './CandidateActionButtons';
@@ -52,7 +51,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({ cand
           getStatusText={getStatusText}
         />
 
-        <CandidateActionButtons />
+        <CandidateActionButtons candidate={candidate} />
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
