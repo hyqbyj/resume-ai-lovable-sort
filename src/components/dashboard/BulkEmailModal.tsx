@@ -198,7 +198,7 @@ export const BulkEmailModal: React.FC<BulkEmailModalProps> = ({ onClose }) => {
                   </h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <Users className="w-4 h-4" />
-                    <span>低分候选人 (< 60分)</span>
+                    <span>低分候选人 (&lt; 60分)</span>
                   </div>
                 </div>
                 
