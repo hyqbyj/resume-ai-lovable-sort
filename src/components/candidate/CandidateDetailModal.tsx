@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Download, Mail, Phone, MapPin, Calendar, GraduationCap, Briefcase, Star, FileText, MessageSquare } from 'lucide-react';
 
@@ -33,6 +32,193 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({ cand
       case 'rejected': return '已拒绝';
       case 'interviewed': return '已面试';
       default: return '未知';
+    }
+  };
+
+  const getTimelineData = (status: string, appliedAt: string) => {
+    const baseDate = new Date(appliedAt);
+    const formatDate = (date: Date) => {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    };
+
+    const addDays = (date: Date, days: number) => {
+      const result = new Date(date);
+      result.setDate(date.getDate() + days);
+      return result;
+    };
+
+    const commonSteps = [
+      { 
+        date: formatDate(baseDate), 
+        action: '简历投递', 
+        status: 'completed', 
+        desc: '候选人通过官网投递简历' 
+      },
+      { 
+        date: formatDate(baseDate), 
+        action: 'AI初筛', 
+        status: 'completed', 
+        desc: `系统评分${candidate.score}分，${candidate.score >= 60 ? '自动通过初筛' : '未通过AI初筛'}` 
+      }
+    ];
+
+    switch (status) {
+      case 'pending':
+        return [
+          ...commonSteps,
+          { 
+            date: formatDate(addDays(baseDate, 1)), 
+            action: 'HR筛选', 
+            status: 'pending', 
+            desc: '等待HR进行人工筛选' 
+          },
+          { 
+            date: '', 
+            action: '技术面试', 
+            status: 'waiting', 
+            desc: '等待HR筛选结果' 
+          },
+          { 
+            date: '', 
+            action: 'HR面试', 
+            status: 'waiting', 
+            desc: '等待技术面试安排' 
+          },
+          { 
+            date: '', 
+            action: '最终决策', 
+            status: 'waiting', 
+            desc: '等待面试结果' 
+          }
+        ];
+
+      case 'qualified':
+        return [
+          ...commonSteps,
+          { 
+            date: formatDate(addDays(baseDate, 1)), 
+            action: 'HR筛选', 
+            status: 'completed', 
+            desc: 'HR确认候选人符合基本要求，通过筛选' 
+          },
+          { 
+            date: formatDate(addDays(baseDate, 2)), 
+            action: '技术面试', 
+            status: 'completed', 
+            desc: '技术面试表现优秀，通过技术评估' 
+          },
+          { 
+            date: formatDate(addDays(baseDate, 4)), 
+            action: 'HR面试', 
+            status: 'completed', 
+            desc: '综合素质面试通过，符合团队要求' 
+          },
+          { 
+            date: formatDate(addDays(baseDate, 5)), 
+            action: '最终决策', 
+            status: 'completed', 
+            desc: '候选人已通过所有面试环节，确认录用' 
+          }
+        ];
+
+      case 'rejected':
+        const rejectionReason = candidate.score < 60 ? 'AI初筛评分过低' : 'HR筛选未通过';
+        const rejectionStep = candidate.score < 60 ? 'AI初筛' : 'HR筛选';
+        
+        if (candidate.score < 60) {
+          return [
+            { 
+              date: formatDate(baseDate), 
+              action: '简历投递', 
+              status: 'completed', 
+              desc: '候选人通过官网投递简历' 
+            },
+            { 
+              date: formatDate(baseDate), 
+              action: 'AI初筛', 
+              status: 'rejected', 
+              desc: `系统评分${candidate.score}分，未达到初筛标准，自动拒绝` 
+            },
+            { 
+              date: '', 
+              action: 'HR筛选', 
+              status: 'cancelled', 
+              desc: '因AI初筛未通过，跳过此环节' 
+            },
+            { 
+              date: '', 
+              action: '技术面试', 
+              status: 'cancelled', 
+              desc: '因前置环节未通过，跳过此环节' 
+            },
+            { 
+              date: '', 
+              action: 'HR面试', 
+              status: 'cancelled', 
+              desc: '因前置环节未通过，跳过此环节' 
+            }
+          ];
+        } else {
+          return [
+            ...commonSteps,
+            { 
+              date: formatDate(addDays(baseDate, 1)), 
+              action: 'HR筛选', 
+              status: 'rejected', 
+              desc: 'HR评估后认为不符合岗位要求，拒绝进入下一轮' 
+            },
+            { 
+              date: '', 
+              action: '技术面试', 
+              status: 'cancelled', 
+              desc: '因HR筛选未通过，跳过此环节' 
+            },
+            { 
+              date: '', 
+              action: 'HR面试', 
+              status: 'cancelled', 
+              desc: '因前置环节未通过，跳过此环节' 
+            },
+            { 
+              date: '', 
+              action: '最终决策', 
+              status: 'cancelled', 
+              desc: '因前置环节未通过，跳过此环节' 
+            }
+          ];
+        }
+
+      case 'interviewed':
+        return [
+          ...commonSteps,
+          { 
+            date: formatDate(addDays(baseDate, 1)), 
+            action: 'HR筛选', 
+            status: 'completed', 
+            desc: 'HR确认候选人符合基本要求' 
+          },
+          { 
+            date: formatDate(addDays(baseDate, 2)), 
+            action: '技术面试', 
+            status: 'completed', 
+            desc: '技术面试已完成，等待面试官反馈' 
+          },
+          { 
+            date: formatDate(addDays(baseDate, 4)), 
+            action: 'HR面试', 
+            status: 'pending', 
+            desc: '待安排HR综合面试' 
+          },
+          { 
+            date: '', 
+            action: '最终决策', 
+            status: 'waiting', 
+            desc: '等待所有面试完成后做最终决策' 
+          }
+        ];
+
+      default:
+        return commonSteps;
     }
   };
 
@@ -250,27 +436,33 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({ cand
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">招聘流程记录</h3>
               <div className="space-y-4">
-                {[
-                  { date: '2024-01-15', action: '简历投递', status: 'completed', desc: '候选人通过官网投递简历' },
-                  { date: '2024-01-15', action: 'AI初筛', status: 'completed', desc: '系统评分87分，自动通过初筛' },
-                  { date: '2024-01-16', action: 'HR筛选', status: 'completed', desc: 'HR确认候选人符合基本要求' },
-                  { date: '2024-01-17', action: '技术面试', status: 'pending', desc: '待安排技术面试' },
-                  { date: '', action: 'HR面试', status: 'waiting', desc: '等待技术面试结果' },
-                  { date: '', action: '最终决策', status: 'waiting', desc: '等待最终录用决策' }
-                ].map((item, index) => (
+                {getTimelineData(candidate.status, candidate.appliedAt).map((item, index) => (
                   <div key={index} className="flex items-start space-x-4">
                     <div className={`w-3 h-3 rounded-full mt-2 ${
                       item.status === 'completed' ? 'bg-green-500' :
-                      item.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-300'
+                      item.status === 'pending' ? 'bg-yellow-500' : 
+                      item.status === 'rejected' ? 'bg-red-500' :
+                      item.status === 'cancelled' ? 'bg-gray-400' : 'bg-gray-300'
                     }`}></div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-gray-900">{item.action}</h4>
+                        <h4 className={`font-medium ${
+                          item.status === 'rejected' ? 'text-red-600' :
+                          item.status === 'cancelled' ? 'text-gray-500' : 'text-gray-900'
+                        }`}>{item.action}</h4>
                         {item.date && (
                           <span className="text-sm text-gray-500">{item.date}</span>
                         )}
+                        {item.status === 'rejected' && (
+                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">已拒绝</span>
+                        )}
+                        {item.status === 'cancelled' && (
+                          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">已跳过</span>
+                        )}
                       </div>
-                      <p className="text-sm text-gray-600">{item.desc}</p>
+                      <p className={`text-sm ${
+                        item.status === 'cancelled' ? 'text-gray-400' : 'text-gray-600'
+                      }`}>{item.desc}</p>
                     </div>
                   </div>
                 ))}
