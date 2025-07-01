@@ -197,14 +197,14 @@ export const HRAccountModal: React.FC<HRAccountModalProps> = ({ onClose }) => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      钉钉组织ID
+                      钉钉企业ID（钉钉号）
                     </label>
                     <input
                       type="text"
                       value={formData.dingTalkOrgId}
                       onChange={(e) => handleInputChange('dingTalkOrgId', e.target.value)}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      placeholder="钉钉组织ID"
+                      placeholder="钉钉企业ID（钉钉号）"
                       disabled={dingTalkConnected}
                     />
                   </div>
