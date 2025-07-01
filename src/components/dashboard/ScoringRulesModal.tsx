@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Settings, Save } from 'lucide-react';
+import { X, Plus, Trash2, Settings, Save, Building2 } from 'lucide-react';
 
 interface ScoringRule {
   id: string;
@@ -9,6 +9,16 @@ interface ScoringRule {
   weight: number;
   scoreRange: [number, number];
   description: string;
+  required: boolean;
+}
+
+interface PositionScoringRules {
+  [positionId: string]: {
+    positionName: string;
+    rules: ScoringRule[];
+    passingScore: number;
+    autoReject: boolean;
+  };
 }
 
 interface ScoringRulesModalProps {
@@ -16,51 +26,182 @@ interface ScoringRulesModalProps {
 }
 
 export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose }) => {
-  const [rules, setRules] = useState<ScoringRule[]>([
-    {
-      id: '1',
-      category: '学历背景',
-      criteria: '本科及以上学历',
-      weight: 20,
-      scoreRange: [0, 20],
-      description: '根据学历层次进行评分'
-    },
-    {
-      id: '2',
-      category: '工作经验',
-      criteria: '相关工作经验年限',
-      weight: 30,
-      scoreRange: [0, 30],
-      description: '根据相关工作经验年限评分'
-    },
-    {
-      id: '3',
-      category: '技能匹配',
-      criteria: '专业技能匹配度',
-      weight: 25,
-      scoreRange: [0, 25],
-      description: '技能与岗位要求匹配程度'
-    },
-    {
-      id: '4',
-      category: '项目经历',
-      criteria: '相关项目经验',
-      weight: 15,
-      scoreRange: [0, 15],
-      description: '项目经历的相关性和复杂度'
-    },
-    {
-      id: '5',
-      category: '综合素质',
-      criteria: '沟通能力、学习能力等',
-      weight: 10,
-      scoreRange: [0, 10],
-      description: '综合软技能评估'
-    }
-  ]);
+  // 模拟的职位数据
+  const positions = [
+    { id: 'frontend', name: '前端开发工程师' },
+    { id: 'backend', name: '后端开发工程师' },
+    { id: 'fullstack', name: '全栈开发工程师' },
+    { id: 'ui-ux', name: 'UI/UX设计师' },
+    { id: 'product', name: '产品经理' },
+    { id: 'data', name: '数据分析师' }
+  ];
 
-  const [passingScore, setPassingScore] = useState(60);
-  const [autoReject, setAutoReject] = useState(true);
+  const [selectedPosition, setSelectedPosition] = useState(positions[0].id);
+  const [positionRules, setPositionRules] = useState<PositionScoringRules>({
+    frontend: {
+      positionName: '前端开发工程师',
+      rules: [
+        {
+          id: '1',
+          category: '学历背景',
+          criteria: '本科及以上学历',
+          weight: 15,
+          scoreRange: [0, 15],
+          description: '计算机相关专业优先',
+          required: true
+        },
+        {
+          id: '2',
+          category: '前端技能',
+          criteria: 'React/Vue/Angular框架经验',
+          weight: 35,
+          scoreRange: [0, 35],
+          description: '熟练掌握至少一种主流前端框架',
+          required: true
+        },
+        {
+          id: '3',
+          category: 'JavaScript能力',
+          criteria: 'JavaScript/TypeScript基础',
+          weight: 25,
+          scoreRange: [0, 25],
+          description: 'ES6+语法，异步编程等',
+          required: true
+        },
+        {
+          id: '4',
+          category: '项目经历',
+          criteria: '前端项目实战经验',
+          weight: 15,
+          scoreRange: [0, 15],
+          description: '完整的前端项目开发经历',
+          required: false
+        },
+        {
+          id: '5',
+          category: '综合素质',
+          criteria: '沟通协作能力',
+          weight: 10,
+          scoreRange: [0, 10],
+          description: '团队合作和问题解决能力',
+          required: false
+        }
+      ],
+      passingScore: 70,
+      autoReject: true
+    },
+    backend: {
+      positionName: '后端开发工程师',
+      rules: [
+        {
+          id: '1',
+          category: '学历背景',
+          criteria: '本科及以上学历',
+          weight: 15,
+          scoreRange: [0, 15],
+          description: '计算机相关专业优先',
+          required: true
+        },
+        {
+          id: '2',
+          category: '后端技能',
+          criteria: 'Java/Python/Go等后端语言',
+          weight: 30,
+          scoreRange: [0, 30],
+          description: '熟练掌握至少一种后端开发语言',
+          required: true
+        },
+        {
+          id: '3',
+          category: '数据库技能',
+          criteria: 'MySQL/PostgreSQL/MongoDB',
+          weight: 20,
+          scoreRange: [0, 20],
+          description: '数据库设计和优化能力',
+          required: true
+        },
+        {
+          id: '4',
+          category: '系统架构',
+          criteria: '微服务架构经验',
+          weight: 20,
+          scoreRange: [0, 20],
+          description: 'Spring Boot/分布式系统经验',
+          required: false
+        },
+        {
+          id: '5',
+          category: '综合素质',
+          criteria: '学习和沟通能力',
+          weight: 15,
+          scoreRange: [0, 15],
+          description: '技术学习能力和团队协作',
+          required: false
+        }
+      ],
+      passingScore: 65,
+      autoReject: true
+    },
+    'ui-ux': {
+      positionName: 'UI/UX设计师',
+      rules: [
+        {
+          id: '1',
+          category: '学历背景',
+          criteria: '设计相关专业背景',
+          weight: 20,
+          scoreRange: [0, 20],
+          description: '视觉传达、交互设计等专业优先',
+          required: true
+        },
+        {
+          id: '2',
+          category: '设计工具',
+          criteria: 'Figma/Sketch/Adobe系列',
+          weight: 30,
+          scoreRange: [0, 30],
+          description: '熟练使用主流设计工具',
+          required: true
+        },
+        {
+          id: '3',
+          category: '作品集质量',
+          criteria: '设计作品集展示',
+          weight: 35,
+          scoreRange: [0, 35],
+          description: '原创设计作品的质量和完整性',
+          required: true
+        },
+        {
+          id: '4',
+          category: '用户体验理解',
+          criteria: 'UX设计思维',
+          weight: 10,
+          scoreRange: [0, 10],
+          description: '用户研究和体验设计能力',
+          required: false
+        },
+        {
+          id: '5',
+          category: '沟通协作',
+          criteria: '跨部门协作能力',
+          weight: 5,
+          scoreRange: [0, 5],
+          description: '与开发和产品团队的协作',
+          required: false
+        }
+      ],
+      passingScore: 75,
+      autoReject: false
+    }
+  });
+
+  const currentRules = positionRules[selectedPosition] || {
+    positionName: positions.find(p => p.id === selectedPosition)?.name || '',
+    rules: [],
+    passingScore: 60,
+    autoReject: true
+  };
 
   const addRule = () => {
     const newRule: ScoringRule = {
@@ -69,36 +210,67 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
       criteria: '',
       weight: 0,
       scoreRange: [0, 0],
-      description: ''
+      description: '',
+      required: false
     };
-    setRules([...rules, newRule]);
+    
+    setPositionRules(prev => ({
+      ...prev,
+      [selectedPosition]: {
+        ...prev[selectedPosition],
+        rules: [...(prev[selectedPosition]?.rules || []), newRule]
+      }
+    }));
   };
 
   const updateRule = (id: string, field: keyof ScoringRule, value: any) => {
-    setRules(rules.map(rule => 
-      rule.id === id ? { ...rule, [field]: value } : rule
-    ));
+    setPositionRules(prev => ({
+      ...prev,
+      [selectedPosition]: {
+        ...prev[selectedPosition],
+        rules: prev[selectedPosition]?.rules.map(rule => 
+          rule.id === id ? { ...rule, [field]: value } : rule
+        ) || []
+      }
+    }));
   };
 
   const deleteRule = (id: string) => {
-    setRules(rules.filter(rule => rule.id !== id));
+    setPositionRules(prev => ({
+      ...prev,
+      [selectedPosition]: {
+        ...prev[selectedPosition],
+        rules: prev[selectedPosition]?.rules.filter(rule => rule.id !== id) || []
+      }
+    }));
   };
 
-  const totalWeight = rules.reduce((sum, rule) => sum + rule.weight, 0);
+  const updatePositionSetting = (field: 'passingScore' | 'autoReject', value: any) => {
+    setPositionRules(prev => ({
+      ...prev,
+      [selectedPosition]: {
+        ...prev[selectedPosition],
+        [field]: value
+      }
+    }));
+  };
+
+  const totalWeight = currentRules.rules.reduce((sum, rule) => sum + rule.weight, 0);
+  const requiredRules = currentRules.rules.filter(rule => rule.required);
 
   const handleSave = () => {
-    console.log('保存评分规则:', { rules, passingScore, autoReject });
+    console.log('保存职位评分规则:', positionRules);
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-auto">
+      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <Settings className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-semibold text-gray-900">评分规则设置</h2>
+            <h2 className="text-xl font-semibold text-gray-900">职位评分规则设置</h2>
           </div>
           <button
             onClick={onClose}
@@ -110,35 +282,61 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* 全局设置 */}
-          <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-            <h3 className="font-medium text-gray-900">全局设置</h3>
+          {/* 职位选择 */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <Building2 className="w-5 h-5 text-gray-600" />
+              <h3 className="font-medium text-gray-900">选择职位</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {positions.map((position) => (
+                <button
+                  key={position.id}
+                  onClick={() => setSelectedPosition(position.id)}
+                  className={`p-3 rounded-lg border-2 transition-colors text-left ${
+                    selectedPosition === position.id
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="font-medium text-sm">{position.name}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {positionRules[position.id]?.rules.length || 0} 条规则
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 当前职位设置 */}
+          <div className="bg-blue-50 rounded-lg p-4">
+            <h3 className="font-medium text-blue-900 mb-3">
+              {currentRules.positionName} - 评分设置
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-blue-800 mb-2">
                   合格分数线
                 </label>
                 <input
                   type="number"
-                  value={passingScore}
-                  onChange={(e) => setPassingScore(Number(e.target.value))}
+                  value={currentRules.passingScore}
+                  onChange={(e) => updatePositionSetting('passingScore', Number(e.target.value))}
                   min="0"
                   max="100"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">低于此分数的简历将被标记为不合格</p>
               </div>
-              <div>
+              <div className="flex items-center">
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={autoReject}
-                    onChange={(e) => setAutoReject(e.target.checked)}
-                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    checked={currentRules.autoReject}
+                    onChange={(e) => updatePositionSetting('autoReject', e.target.checked)}
+                    className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">自动拒绝低分简历</span>
+                  <span className="text-sm font-medium text-blue-800">自动拒绝低分简历</span>
                 </label>
-                <p className="text-xs text-gray-500 mt-1">自动向不合格候选人发送拒信</p>
               </div>
             </div>
           </div>
@@ -146,7 +344,14 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
           {/* 评分规则列表 */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-gray-900">评分规则 (总权重: {totalWeight}%)</h3>
+              <div>
+                <h3 className="font-medium text-gray-900">
+                  评分规则 (总权重: {totalWeight}%)
+                </h3>
+                <p className="text-sm text-gray-600">
+                  必选规则: {requiredRules.length} 条 | 可选规则: {currentRules.rules.length - requiredRules.length} 条
+                </p>
+              </div>
               <button
                 onClick={addRule}
                 className="flex items-center space-x-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
@@ -165,9 +370,11 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
             )}
 
             <div className="space-y-4">
-              {rules.map((rule) => (
-                <div key={rule.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {currentRules.rules.map((rule) => (
+                <div key={rule.id} className={`border-2 rounded-lg p-4 ${
+                  rule.required ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'
+                }`}>
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         评分类别
@@ -177,7 +384,7 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
                         value={rule.category}
                         onChange={(e) => updateRule(rule.id, 'category', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                        placeholder="例如：学历背景"
+                        placeholder="例如：技术能力"
                       />
                     </div>
                     <div>
@@ -205,6 +412,19 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        规则类型
+                      </label>
+                      <select
+                        value={rule.required ? 'required' : 'optional'}
+                        onChange={(e) => updateRule(rule.id, 'required', e.target.value === 'required')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      >
+                        <option value="required">必选项</option>
+                        <option value="optional">可选项</option>
+                      </select>
+                    </div>
                     <div className="flex items-end">
                       <button
                         onClick={() => deleteRule(rule.id)}
@@ -217,6 +437,7 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
                   <div className="mt-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       规则描述
+                      {rule.required && <span className="text-red-500 ml-1">*必选</span>}
                     </label>
                     <textarea
                       value={rule.description}
@@ -233,25 +454,29 @@ export const ScoringRulesModal: React.FC<ScoringRulesModalProps> = ({ onClose })
 
           {/* 预览效果 */}
           <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-medium text-blue-900 mb-3">评分规则预览</h3>
+            <h3 className="font-medium text-blue-900 mb-3">当前职位评分规则预览</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <h4 className="font-medium text-blue-800 mb-2">规则统计</h4>
                 <ul className="space-y-1 text-blue-700">
-                  <li>• 评分规则数量: {rules.length}条</li>
+                  <li>• 职位: {currentRules.positionName}</li>
+                  <li>• 评分规则: {currentRules.rules.length}条</li>
+                  <li>• 必选规则: {requiredRules.length}条</li>
                   <li>• 总权重: {totalWeight}%</li>
-                  <li>• 合格分数线: {passingScore}分</li>
-                  <li>• 自动拒绝: {autoReject ? '开启' : '关闭'}</li>
+                  <li>• 合格分数线: {currentRules.passingScore}分</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-blue-800 mb-2">评分流程</h4>
-                <ol className="space-y-1 text-blue-700">
-                  <li>1. AI解析简历内容</li>
-                  <li>2. 按规则计算各项得分</li>
-                  <li>3. 加权计算总分</li>
-                  <li>4. 根据分数线自动分类</li>
-                </ol>
+                <h4 className="font-medium text-blue-800 mb-2">必选规则</h4>
+                <ul className="space-y-1 text-blue-700">
+                  {requiredRules.length > 0 ? (
+                    requiredRules.map((rule, index) => (
+                      <li key={rule.id}>• {rule.category} ({rule.weight}%)</li>
+                    ))
+                  ) : (
+                    <li>• 暂无必选规则</li>
+                  )}
+                </ul>
               </div>
             </div>
           </div>
