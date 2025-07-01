@@ -40,10 +40,10 @@ export const SyncSettingsModal: React.FC<SyncSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-60">
-      <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+      <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-auto relative z-[10000]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
           <div className="flex items-center space-x-3">
             <span className="text-2xl">{platform.icon}</span>
             <h2 className="text-xl font-semibold text-gray-900">
@@ -52,7 +52,7 @@ export const SyncSettingsModal: React.FC<SyncSettingsModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -73,7 +73,7 @@ export const SyncSettingsModal: React.FC<SyncSettingsModalProps> = ({
                 { value: 'daily', label: '每天' },
                 { value: 'weekly', label: '每周' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
+                <label key={option.value} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                   <input
                     type="radio"
                     name="syncFrequency"
@@ -93,7 +93,7 @@ export const SyncSettingsModal: React.FC<SyncSettingsModalProps> = ({
                   type="time"
                   value={settings.syncHours}
                   onChange={(e) => handleSettingChange('syncHours', e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
               </div>
             )}
@@ -155,15 +155,17 @@ export const SyncSettingsModal: React.FC<SyncSettingsModalProps> = ({
               {settings.filterByScore && (
                 <div className="ml-6">
                   <label className="block text-sm text-gray-600 mb-1">最低评分</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={settings.minScore}
-                    onChange={(e) => handleSettingChange('minScore', parseInt(e.target.value))}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  />
-                  <span className="ml-2 text-sm text-gray-500">分</span>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={settings.minScore}
+                      onChange={(e) => handleSettingChange('minScore', parseInt(e.target.value))}
+                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                    <span className="text-sm text-gray-500">分</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -199,7 +201,7 @@ export const SyncSettingsModal: React.FC<SyncSettingsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex space-x-3 p-6 border-t border-gray-200">
+        <div className="flex space-x-3 p-6 border-t border-gray-200 sticky bottom-0 bg-white rounded-b-xl">
           <button
             onClick={onClose}
             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
