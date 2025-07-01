@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
-import { X, Check, AlertCircle, Settings, Plus, Trash2, Edit3 } from 'lucide-react';
+import { X, Check, AlertCircle, Settings, Plus, Trash2, Edit3, RefreshCw } from 'lucide-react';
 import { SyncSettingsModal } from './SyncSettingsModal';
+import { EditAccountModal } from './EditAccountModal';
 
 interface AccountManagementModalProps {
   onClose: () => void;
@@ -53,8 +55,10 @@ export const AccountManagementModal: React.FC<AccountManagementModalProps> = ({ 
 
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [showSyncSettings, setShowSyncSettings] = useState(false);
+  const [showEditAccount, setShowEditAccount] = useState(false);
   const [selectedPlatformForSettings, setSelectedPlatformForSettings] = useState<any>(null);
-  const [editingAccount, setEditingAccount] = useState<string | null>(null);
+  const [editingAccount, setEditingAccount] = useState<PlatformAccount | null>(null);
+  const [syncingAccounts, setSyncingAccounts] = useState<Set<string>>(new Set());
 
   const handleConnect = (accountId: string) => {
     setAccounts(prev => prev.map(acc => 
@@ -83,6 +87,45 @@ export const AccountManagementModal: React.FC<AccountManagementModalProps> = ({ 
       icon: account.platformIcon
     });
     setShowSyncSettings(true);
+  };
+
+  const handleEditAccount = (account: PlatformAccount) => {
+    setEditingAccount(account);
+    setShowEditAccount(true);
+  };
+
+  const handleImmediateSync = async (accountId: string) => {
+    setSyncingAccounts(prev => new Set(prev).add(accountId));
+    
+    // 模拟同步过程
+    setTimeout(() => {
+      const now = new Date();
+      const timeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      setAccounts(prev => prev.map(acc => 
+        acc.id === accountId 
+          ? { 
+              ...acc, 
+              lastSync: timeString,
+              resumeCount: acc.resumeCount + Math.floor(Math.random() * 10) // 模拟新增简历
+            }
+          : acc
+      ));
+      
+      setSyncingAccounts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(accountId);
+        return newSet;
+      });
+    }, 2000);
+  };
+
+  const handleAccountUpdate = (updatedAccount: PlatformAccount) => {
+    setAccounts(prev => prev.map(acc => 
+      acc.id === updatedAccount.id ? updatedAccount : acc
+    ));
+    setShowEditAccount(false);
+    setEditingAccount(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -166,7 +209,7 @@ export const AccountManagementModal: React.FC<AccountManagementModalProps> = ({ 
                       {account.status === 'connected' ? (
                         <>
                           <button
-                            onClick={() => setEditingAccount(account.id)}
+                            onClick={() => handleEditAccount(account)}
                             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
                           >
                             <Edit3 className="w-4 h-4" />
@@ -208,8 +251,19 @@ export const AccountManagementModal: React.FC<AccountManagementModalProps> = ({ 
                         </div>
                       </div>
                       <div className="mt-3 flex space-x-2">
-                        <button className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
-                          立即同步
+                        <button 
+                          onClick={() => handleImmediateSync(account.id)}
+                          disabled={syncingAccounts.has(account.id)}
+                          className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                        >
+                          {syncingAccounts.has(account.id) ? (
+                            <>
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                              <span>同步中</span>
+                            </>
+                          ) : (
+                            <span>立即同步</span>
+                          )}
                         </button>
                         <button 
                           onClick={() => handleSyncSettings(account)}
@@ -335,6 +389,18 @@ export const AccountManagementModal: React.FC<AccountManagementModalProps> = ({ 
             setShowSyncSettings(false);
             setSelectedPlatformForSettings(null);
           }}
+        />
+      )}
+
+      {/* Edit Account Modal */}
+      {showEditAccount && editingAccount && (
+        <EditAccountModal
+          account={editingAccount}
+          onClose={() => {
+            setShowEditAccount(false);
+            setEditingAccount(null);
+          }}
+          onSave={handleAccountUpdate}
         />
       )}
     </>
