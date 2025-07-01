@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, Calendar, Star, Phone, Mail, Eye, MessageSquare } from 'lucide-react';
+import { MapPin, Calendar, Star, Eye } from 'lucide-react';
 
 interface Candidate {
   id: number;
@@ -95,16 +95,6 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, onViewD
           <MapPin className="w-3 h-3" />
           <span>{candidate.education}</span>
         </div>
-        <div className="flex items-center space-x-4 text-sm text-gray-500">
-          <div className="flex items-center space-x-1">
-            <Phone className="w-3 h-3" />
-            <span>{candidate.phone}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Mail className="w-3 h-3" />
-            <span>{candidate.email}</span>
-          </div>
-        </div>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <Calendar className="w-3 h-3" />
           <span>申请时间: {candidate.appliedAt}</span>
@@ -143,22 +133,13 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, onViewD
       </div>
 
       {/* Actions */}
-      <div className="flex space-x-2 pt-4 border-t border-gray-100">
+      <div className="flex pt-4 border-t border-gray-100">
         <button 
           onClick={onViewDetail}
           className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
         >
           <Eye className="w-3 h-3" />
           <span>查看详情</span>
-        </button>
-        <button className="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm">
-          <Phone className="w-3 h-3" />
-        </button>
-        <button className="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm">
-          <Mail className="w-3 h-3" />
-        </button>
-        <button className="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm">
-          <MessageSquare className="w-3 h-3" />
         </button>
       </div>
     </div>

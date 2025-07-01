@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CandidateHeader } from './CandidateHeader';
 import { CandidateActionButtons } from './CandidateActionButtons';
@@ -78,7 +79,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({ cand
         {/* Tab Content */}
         <div className="p-6">
           {activeTab === 'overview' && <CandidateOverviewTab candidate={candidate} />}
-          {activeTab === 'experience' && <CandidateExperienceTab />}
+          {activeTab === 'experience' && <CandidateExperienceTab candidate={candidate} />}
           {activeTab === 'evaluation' && <CandidateEvaluationTab candidate={candidate} />}
           {activeTab === 'timeline' && <CandidateTimelineTab candidate={candidate} />}
         </div>

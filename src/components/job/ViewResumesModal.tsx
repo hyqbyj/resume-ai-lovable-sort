@@ -2,128 +2,19 @@
 import React, { useState } from 'react';
 import { X, Search, User, Star, Calendar } from 'lucide-react';
 import { CandidateDetailModal } from '../candidate/CandidateDetailModal';
+import { candidatesData } from '../candidate/data/candidatesData';
 
 interface ViewResumesModalProps {
   job: any;
   onClose: () => void;
 }
 
-const mockResumes = [
-  {
-    id: 1,
-    name: '张三',
-    position: '前端开发工程师',
-    score: 87,
-    education: '北京大学 • 计算机科学',
-    experience: '3年',
-    skills: ['React', 'TypeScript', 'Node.js', 'Python'],
-    status: 'pending',
-    phone: '138****1234',
-    email: 'zhang***@email.com',
-    resumeUrl: '/resumes/zhangsan.pdf',
-    appliedDate: '2024-01-15',
-    appliedAt: '2024-01-15',
-    highlights: ['技能匹配度高', '知名院校背景'],
-    basicInfo: {
-      gender: '男',
-      age: 28,
-      location: '北京',
-      maritalStatus: '未婚',
-    },
-    workExperience: [
-      {
-        company: '字节跳动',
-        position: '高级前端开发工程师',
-        duration: '2022.03 - 至今',
-        description: '负责抖音创作者平台的前端开发，使用React和TypeScript构建高性能的Web应用，参与架构设计和技术选型，指导初级开发者。'
-      },
-      {
-        company: '美团',
-        position: '前端开发工程师',
-        duration: '2020.07 - 2022.02',
-        description: '参与美团商家后台系统的开发，使用Vue.js和Element UI构建管理系统，优化页面性能，提升用户体验。'
-      }
-    ],
-    evaluationDetails: {
-      skillMatch: 95,
-      experienceMatch: 85,
-      overallScore: 87,
-      aiSuggestions: [
-        '技术栈与岗位需求高度匹配，React和TypeScript经验丰富',
-        '有大厂工作背景，项目复杂度和技术深度符合要求',
-        '建议重点考察系统设计和团队协作能力',
-        '薪资期望可能较高，需要提前沟通'
-      ]
-    },
-    timeline: [
-      { action: '提交简历', date: '2024-01-15', status: 'completed' },
-      { action: '初步筛选', date: '2024-01-16', status: 'completed' },
-      { action: '技术面试', date: '2024-01-18', status: 'pending' },
-      { action: 'HR面试', status: 'pending' }
-    ]
-  },
-  {
-    id: 2,
-    name: '李四',
-    position: '前端开发工程师',
-    score: 72,
-    education: '清华大学 • 软件工程',
-    experience: '2年',
-    skills: ['Vue.js', 'JavaScript', 'CSS3', 'Webpack'],
-    status: 'qualified',
-    phone: '139****5678',
-    email: 'lisi***@email.com',
-    resumeUrl: '/resumes/lisi.pdf',
-    appliedDate: '2024-01-14',
-    appliedAt: '2024-01-14',
-    highlights: ['学习能力强', '项目经验丰富'],
-    basicInfo: {
-      gender: '男',
-      age: 26,
-      location: '上海',
-      maritalStatus: '未婚',
-    },
-    workExperience: [
-      {
-        company: '阿里巴巴',
-        position: '前端开发工程师',
-        duration: '2022.03 - 至今',
-        description: '负责淘宝店铺的前端开发，使用Vue.js和Element UI构建高性能的Web应用，参与架构设计和技术选型，指导初级开发者。'
-      },
-      {
-        company: '腾讯',
-        position: '前端开发工程师',
-        duration: '2020.07 - 2022.02',
-        description: '参与腾讯视频后台系统的开发，使用React和Ant Design构建管理系统，优化页面性能，提升用户体验。'
-      }
-    ],
-    evaluationDetails: {
-      skillMatch: 85,
-      experienceMatch: 75,
-      overallScore: 72,
-      aiSuggestions: [
-        '技术栈与岗位需求高度匹配，Vue.js和Element UI经验丰富',
-        '有大厂工作背景，项目复杂度和技术深度符合要求',
-        '建议重点考察系统设计和团队协作能力',
-        '薪资期望可能较高，需要提前沟通'
-      ]
-    },
-    timeline: [
-      { action: '提交简历', date: '2024-01-14', status: 'completed' },
-      { action: '初步筛选', date: '2024-01-15', status: 'completed' },
-      { action: '技术面试', date: '2024-01-17', status: 'completed' },
-      { action: 'HR面试', date: '2024-01-19', status: 'completed' },
-      { action: '已通过', status: 'completed' }
-    ]
-  }
-];
-
 export const ViewResumesModal: React.FC<ViewResumesModalProps> = ({ job, onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-  const filteredResumes = mockResumes.filter(resume => {
+  const filteredResumes = candidatesData.filter(resume => {
     const matchesSearch = resume.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || resume.status === selectedStatus;
     return matchesSearch && matchesStatus;
@@ -134,6 +25,7 @@ export const ViewResumesModal: React.FC<ViewResumesModalProps> = ({ job, onClose
       case 'qualified': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'rejected': return 'bg-red-100 text-red-800';
+      case 'interviewed': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -143,6 +35,7 @@ export const ViewResumesModal: React.FC<ViewResumesModalProps> = ({ job, onClose
       case 'qualified': return '已合格';
       case 'pending': return '待筛选';
       case 'rejected': return '已拒绝';
+      case 'interviewed': return '已面试';
       default: return '未知';
     }
   };
@@ -187,6 +80,7 @@ export const ViewResumesModal: React.FC<ViewResumesModalProps> = ({ job, onClose
                 <option value="pending">待筛选</option>
                 <option value="qualified">已合格</option>
                 <option value="rejected">已拒绝</option>
+                <option value="interviewed">已面试</option>
               </select>
             </div>
           </div>
