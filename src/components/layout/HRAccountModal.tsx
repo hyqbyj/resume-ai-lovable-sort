@@ -275,7 +275,7 @@ export const HRAccountModal: React.FC<HRAccountModalProps> = ({ onClose }) => {
                       onChange={(e) => handleInputChange('autoSync', e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">自动同步钉钉通讯录</span>
+                    <span className="text-sm text-gray-700">使用钉钉账号头像</span>
                   </label>
                   
                   <label className="flex items-center space-x-3">
