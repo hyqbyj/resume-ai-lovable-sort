@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Upload, FileText, AlertCircle, CheckCircle, Clock, Link, Settings } from 'lucide-react';
 import { AccountManagementModal } from './AccountManagementModal';
+import { ConnectAccountModal } from './ConnectAccountModal';
 
 interface BulkUploadModalProps {
   onClose: () => void;
@@ -13,6 +14,8 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ onClose }) => 
   const [selectedMethod, setSelectedMethod] = useState<'file' | 'platform'>('file');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [showAccountManagement, setShowAccountManagement] = useState(false);
+  const [showConnectAccount, setShowConnectAccount] = useState(false);
+  const [selectedPlatformToConnect, setSelectedPlatformToConnect] = useState<any>(null);
   const [processingResults, setProcessingResults] = useState([
     { name: 'zhangsan.pdf', status: 'success', score: 87, message: '解析成功，评分87分' },
     { name: 'lisi.docx', status: 'success', score: 72, message: '解析成功，评分72分' },
@@ -20,7 +23,7 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ onClose }) => 
     { name: 'malformed.pdf', status: 'error', score: 0, message: '文件损坏，解析失败' }
   ]);
 
-  const platforms = [
+  const [platforms, setPlatforms] = useState([
     {
       id: 'boss',
       name: 'Boss直聘',
@@ -42,7 +45,7 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ onClose }) => 
       color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
       connected: true
     }
-  ];
+  ]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
@@ -58,8 +61,26 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ onClose }) => 
   };
 
   const handleConnect = (platformId: string) => {
-    // 模拟连接平台账号
-    console.log(`连接平台: ${platformId}`);
+    const platform = platforms.find(p => p.id === platformId);
+    if (platform) {
+      setSelectedPlatformToConnect(platform);
+      setShowConnectAccount(true);
+    }
+  };
+
+  const handleAccountConnected = (accountData: any) => {
+    // Update platform connection status
+    setPlatforms(prev => prev.map(platform => 
+      platform.id === selectedPlatformToConnect?.id 
+        ? { ...platform, connected: true }
+        : platform
+    ));
+    
+    setShowConnectAccount(false);
+    setSelectedPlatformToConnect(null);
+    
+    // Show success message or handle the connected account data
+    console.log('Account connected:', accountData);
   };
 
   const handleUpload = () => {
@@ -419,6 +440,18 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ onClose }) => 
       {showAccountManagement && (
         <AccountManagementModal
           onClose={() => setShowAccountManagement(false)}
+        />
+      )}
+
+      {/* Connect Account Modal */}
+      {showConnectAccount && selectedPlatformToConnect && (
+        <ConnectAccountModal
+          platform={selectedPlatformToConnect}
+          onClose={() => {
+            setShowConnectAccount(false);
+            setSelectedPlatformToConnect(null);
+          }}
+          onConnect={handleAccountConnected}
         />
       )}
     </>
