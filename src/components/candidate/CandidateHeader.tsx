@@ -82,3 +82,5 @@ export const CandidateHeader: React.FC<CandidateHeaderProps> = ({
     </>
   );
 };
+Title: feat: add CandidateHeader component
+Description: Create new component for candidate profile header
